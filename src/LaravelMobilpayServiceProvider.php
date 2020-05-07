@@ -14,10 +14,10 @@ class LaravelMobilpayServiceProvider extends ServiceProvider
         /*
          * Optional methods to load your package assets
          */
-        // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'laravel-mobilpay');
-        // $this->loadViewsFrom(__DIR__.'/../resources/views', 'laravel-mobilpay');
-        // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        // $this->loadRoutesFrom(__DIR__.'/routes.php');
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'laravel-mobilpay');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'laravel-mobilpay');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->loadRoutesFrom(__DIR__.'/routes/routes.php');
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
@@ -25,19 +25,19 @@ class LaravelMobilpayServiceProvider extends ServiceProvider
             ], 'config');
 
             // Publishing the views.
-            /*$this->publishes([
+            $this->publishes([
                 __DIR__.'/../resources/views' => resource_path('views/vendor/laravel-mobilpay'),
-            ], 'views');*/
+            ], 'views');
 
             // Publishing assets.
-            /*$this->publishes([
+            $this->publishes([
                 __DIR__.'/../resources/assets' => public_path('vendor/laravel-mobilpay'),
-            ], 'assets');*/
+            ], 'assets');
 
             // Publishing the translation files.
-            /*$this->publishes([
+            $this->publishes([
                 __DIR__.'/../resources/lang' => resource_path('lang/vendor/laravel-mobilpay'),
-            ], 'lang');*/
+            ], 'lang');
 
             // Registering package commands.
             // $this->commands([]);
