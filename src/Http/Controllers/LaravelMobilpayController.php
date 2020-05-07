@@ -7,8 +7,7 @@ class LaravelMobilpayController extends Controller
     public function index()
     {
         //
-
-        die(__METHOD__.'index');
+        return view('laravel-mobilpay.card');
     }
 
     public function show()
