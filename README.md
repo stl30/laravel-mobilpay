@@ -1,4 +1,4 @@
-# Very short description of the package
+# Package integration of [[mobilpay php module]](https://github.com/mobilpay/PHP_CARD)
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/stl30/laravel-mobilpay.svg?style=flat-square)](https://packagist.org/packages/stl30/laravel-mobilpay)
 [![Build Status](https://img.shields.io/travis/stl30/laravel-mobilpay/master.svg?style=flat-square)](https://travis-ci.org/stl30/laravel-mobilpay)
