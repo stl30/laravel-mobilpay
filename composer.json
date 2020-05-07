@@ -1,0 +1,54 @@
+{
+    "name": "stl30/laravel-mobilpay",
+    "description": "package integration of mobilpay php module",
+    "keywords": [
+        "stl30",
+        "laravel-mobilpay"
+    ],
+    "homepage": "https://github.com/stl30/laravel-mobilpay",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Stoea L",
+            "email": "stoea.leontin@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.1",
+        "illuminate/support": "^6.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^4.0",
+        "phpunit/phpunit": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Stl30\\LaravelMobilpay\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Stl30\\LaravelMobilpay\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Stl30\\LaravelMobilpay\\LaravelMobilpayServiceProvider"
+            ],
+            "aliases": {
+                "LaravelMobilpay": "Stl30\\LaravelMobilpay\\LaravelMobilpayFacade"
+            }
+        }
+    }
+}
