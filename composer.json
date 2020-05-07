@@ -23,7 +23,7 @@
         "orchestra/testbench": ">=4.0",
         "phpunit/phpunit": ">=8.0"
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
             "Stl30\\LaravelMobilpay\\": "src"
