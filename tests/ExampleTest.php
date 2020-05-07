@@ -12,10 +12,21 @@ class ExampleTest extends TestCase
     {
         return [LaravelMobilpayServiceProvider::class];
     }
-    
+
     /** @test */
     public function true_is_true()
     {
         $this->assertTrue(true);
+    }
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        // additional setup
+    }
+
+    protected function getEnvironmentSetUp($app)
+    {
+        // perform environment setup
     }
 }
