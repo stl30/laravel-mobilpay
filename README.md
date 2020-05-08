@@ -15,6 +15,12 @@ You can install the package via composer:
 composer require stl30/laravel-mobilpay
 ```
 
+Publish packet
+```bash
+php artisan vendor:publish --provider=Stl30\LaravelMobilpay\LaravelMobilpayServiceProvider
+```
+
+
 ## Usage
 
 ``` php
