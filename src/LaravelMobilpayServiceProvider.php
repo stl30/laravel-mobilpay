@@ -15,9 +15,9 @@ class LaravelMobilpayServiceProvider extends ServiceProvider
          * Optional methods to load your package assets
          */
 //        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'laravel-mobilpay');
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'laravel-mobilpay');
+        $this->loadViewsFrom(__DIR__.'/resources/views', 'laravel-mobilpay');
 //        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        $this->loadRoutesFrom(__DIR__.'/../routes/routes.php');
+        $this->loadRoutesFrom(__DIR__.'/routes/routes.php');
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
@@ -36,7 +36,7 @@ class LaravelMobilpayServiceProvider extends ServiceProvider
 
             // Publishing the translation files.
             $this->publishes([
-                __DIR__.'/../resources/lang' => resource_path('lang/vendor/laravel-mobilpay'),
+                __DIR__.'/resources/lang' => resource_path('lang/vendor/laravel-mobilpay'),
             ], 'lang');
 
             // Registering package commands.
@@ -50,7 +50,7 @@ class LaravelMobilpayServiceProvider extends ServiceProvider
     public function register()
     {
         // Automatically apply the package configuration
-        $this->mergeConfigFrom(__DIR__ . '/../config/laravel-mobilpay.php', 'laravel-mobilpay');
+        $this->mergeConfigFrom(__DIR__ . '/config/laravel-mobilpay.php', 'laravel-mobilpay');
 
         // Register the main class to use with the facade
         $this->app->singleton('laravel-mobilpay', function () {
