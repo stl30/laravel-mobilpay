@@ -192,6 +192,7 @@ class LaravelMobilpayController extends Controller
             'errorMessage' => $errorMessage
         ]);
     }
+
     public function cardReturn()
     {
         return view('vendor.laravel-mobilpay.cardReturn');
