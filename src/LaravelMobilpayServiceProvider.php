@@ -15,23 +15,23 @@ class LaravelMobilpayServiceProvider extends ServiceProvider
          * Optional methods to load your package assets
          */
 //        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'laravel-mobilpay');
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'Lara');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'laravel-mobilpay');
 //        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        $this->loadRoutesFrom(__DIR__ . '/routes/web.php');
+        $this->loadRoutesFrom(__DIR__.'/../routes/routes.php');
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../config/config.php' => config_path('laravel-mobilpay.php'),
+                __DIR__.'/config/laravel-mobilpay.php' => config_path('laravel-mobilpay.php'),
             ], 'config');
 
             // Publishing the views.
             $this->publishes([
-                __DIR__.'/../resources/views' => resource_path('views/vendor/laravel-mobilpay'),
+                __DIR__.'/resources/views/laravel-mobilpay' => resource_path('views/vendor/laravel-mobilpay'),
             ], 'views');
 
             // Publishing assets.
             $this->publishes([
-                __DIR__.'/../resources/assets' => public_path('vendor/laravel-mobilpay'),
+                __DIR__.'/resources/assets' => public_path('vendor/laravel-mobilpay'),
             ], 'assets');
 
             // Publishing the translation files.
