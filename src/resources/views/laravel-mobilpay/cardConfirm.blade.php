@@ -1,9 +1,9 @@
 <?php
-require_once 'Mobilpay/Payment/Request/Abstract.php';
-require_once 'Mobilpay/Payment/Request/Card.php';
-require_once 'Mobilpay/Payment/Request/Notify.php';
-require_once 'Mobilpay/Payment/Invoice.php';
-require_once 'Mobilpay/Payment/Address.php';
+use Stl30\LaravelMobilpay\Mobilpay\Payment\Request\Mobilpay_Payment_Request_Abstract;
+use Stl30\LaravelMobilpay\Mobilpay\Payment\Request\Mobilpay_Payment_Request_Card;
+use Stl30\LaravelMobilpay\Mobilpay\Payment\Request\Mobilpay_Payment_Request_Notify;
+use Stl30\LaravelMobilpay\Mobilpay\Payment\Invoice;
+use Stl30\LaravelMobilpay\Mobilpay\Payment\Mobilpay_Payment_Address;
 
 $errorCode 		= 0;
 $errorType		= Mobilpay_Payment_Request_Abstract::CONFIRM_ERROR_TYPE_NONE;

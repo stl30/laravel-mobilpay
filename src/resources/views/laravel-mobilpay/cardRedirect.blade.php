@@ -42,10 +42,10 @@
                     <img src="http://www.mobilpay.ro/assets/themes/public/img/demo.png"/>
                 </div>
                 <?php
-                require_once 'Mobilpay/Payment/Request/Abstract.php';
-                require_once 'Mobilpay/Payment/Request/Card.php';
-                require_once 'Mobilpay/Payment/Invoice.php';
-                require_once 'Mobilpay/Payment/Address.php';
+                use Stl30\LaravelMobilpay\Mobilpay\Payment\Request\Mobilpay_Payment_Request_Abstract;
+                use Stl30\LaravelMobilpay\Mobilpay\Payment\Request\Mobilpay_Payment_Request_Card;
+                use Stl30\LaravelMobilpay\Mobilpay\Payment\Invoice;
+                use Stl30\LaravelMobilpay\Mobilpay\Payment\Mobilpay_Payment_Address;
 
                 #for testing purposes, all payment requests will be sent to the sandbox server. Once your account will be active you must switch back to the live server https://secure.mobilpay.ro
                 #in order to display the payment form in a different language, simply add the language identifier to the end of the paymentUrl, i.e https://secure.mobilpay.ro/en for English
