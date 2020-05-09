@@ -3,6 +3,7 @@
 namespace Stl30\LaravelMobilpay\Http\Controllers;
 use \Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Stl30\LaravelMobilpay\Mobilpay\Payment\Request\Mobilpay_Payment_Request_Abstract;
 use Stl30\LaravelMobilpay\Mobilpay\Payment\Request\Mobilpay_Payment_Request_Card;
 use Stl30\LaravelMobilpay\Mobilpay\Payment\Invoice;
@@ -27,8 +28,76 @@ class LaravelMobilpayController extends Controller
         return view('vendor.laravel-mobilpay.card');
     }
 
-    public function cardRedirect(Request $request)
+    public static function validatePaymentDetails(Request $request)
     {
+        //TODO all fields validation
+        $validator = Validator::make($request->all(), [
+            'payment_amount' => 'required',
+            'payment_details' => 'required',
+            'order_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $html = '<pre>
+                       <ul>';
+            foreach ($validator->getMessageBag()->getMessages() as $key => $message) {
+                $html .= '<li>'.$key.' '.$message[0].'</li>';
+            }
+            $html .= '</ul>';
+            die($html);
+        }
+
+        $possibleParameters = [
+            #must haves values
+            'payment_amount' => '',
+            'payment_details' => 'payment details placeholder',
+            'order_id' => '',
+            #optional values
+            'promotion_code' => '',
+            #details on the cardholder address (optional)
+            'billing_type' => 'person',//or company
+            'billing_first_name' => '',//client first name
+            'billing_last_name' => '',//client last name
+            'billing_address' => '',//client adress
+            'billing_email' => '',//client email
+            'billing_mobile_phone' => '',//client phone/mobile
+            'billing_fiscal_number' => '',
+            'billing_identity_number' => '',
+            'billing_country' => '',
+            'billing_county' => '',
+            'billing_city' => '',
+            'billing_zip_code' => '',
+            'billing_bank' => '',
+            'billing_iban' => '',
+            #details on the shipping address
+            'shipping_type' => 'person',//or company
+            'shipping_first_name' => '',
+            'shipping_last_name' => '',
+            'shipping_address' => '',
+            'shipping_email' => '',
+            'shipping_mobile_phone' => '',
+            'shipping_fiscal_number' => '',
+            'shipping_identity_number' => '',
+            'shipping_country' => '',
+            'shipping_county' => '',
+            'shipping_city' => '',
+            'shipping_zip_code' => '',
+            'shipping_bank' => '',
+            'shipping_iban' => '',
+        ];
+
+        foreach ($possibleParameters as $key => $Value) {
+            if(isset($request[$key]) && $request[$key] !== null){
+                $paymentParameters[$key]=$request[$key];
+            }
+        }
+
+        return (new self()) -> cardRedirect($paymentParameters);
+    }
+
+    public function cardRedirect(array $paymentParameters)
+    {
+
         #for testing purposes, all payment requests will be sent to the sandbox server. Once your account will be active you must switch back to the live server https://secure.mobilpay.ro
         #in order to display the payment form in a different language, simply add the language identifier to the end of the paymentUrl, i.e https://secure.mobilpay.ro/en for English
         if(config('laravel-mobilpay.sandbox_active')){
@@ -41,7 +110,14 @@ class LaravelMobilpayController extends Controller
         //$paymentUrl = 'https://secure.mobilpay.ro';
         // this is the path on your server to the public certificate. You may download this from Admin -> Conturi de comerciant -> Detalii -> Setari securitate
 //        $x509FilePath 	= 'i.e: /home/certificates/public.cer';
-        $x509FilePath 	= config('laravel-mobilpay.sandbox_public_key');
+
+        if(config('laravel-mobilpay.sandbox_active')){
+            $x509FilePath 	= config('laravel-mobilpay.sandbox_public_key');
+        }
+        else{
+            $x509FilePath 	= config('laravel-mobilpay.production_public_key');
+        }
+
         try
         {
             srand((double) microtime() * 1000000);
@@ -51,7 +127,7 @@ class LaravelMobilpayController extends Controller
             $objPmReqCard->signature 			= config('laravel-mobilpay.merchant_account_signature');
             #you should assign here the transaction ID registered by your application for this commercial operation
             #order_id should be unique for a merchant account
-            $objPmReqCard->orderId 				= $this->getOrderId();
+            $objPmReqCard->orderId 				= $paymentParameters['order_id'];
             #below is where mobilPay will send the payment result. This URL will always be called first; mandatory
             $objPmReqCard->confirmUrl 			= config('laravel-mobilpay.confirmUrl');
             #below is where mobilPay redirects the client once the payment process is finished. Not to be mistaken for a "successURL" nor "cancelURL"; mandatory
@@ -64,41 +140,41 @@ class LaravelMobilpayController extends Controller
             #process a currency different from RON, a currency exchange will occur from your currency to RON, using the official BNR exchange rate from that moment
             #and the customer will be presented with the payment amount in a dual currency in the payment page, i.e N.NN RON (e.ee EUR)
             $objPmReqCard->invoice->currency	= config('laravel-mobilpay.currency');
-            $objPmReqCard->invoice->amount		= $this->getOrderAmount();
+            $objPmReqCard->invoice->amount		= $paymentParameters['payment_amount'];
             #available installments number; if this parameter is present, only its value(s) will be available
             //$objPmReqCard->invoice->installments= '2,3';
             #selected installments number; its value should be within the available installments defined above
             //$objPmReqCard->invoice->selectedInstallments= '3';
             //platile ulterioare vor contine in request si informatiile despre token. Prima plata nu va contine linia de mai jos.
 //            $objPmReqCard->invoice->tokenId = 'token_id';
-            $objPmReqCard->invoice->details		= 'Plata online cu cardul';
+            $objPmReqCard->invoice->details		= $paymentParameters['payment_details'];
 
             #detalii cu privire la adresa posesorului cardului
             #details on the cardholder address (optional)
             $billingAddress 				= new Mobilpay_Payment_Address();
-            $billingAddress->type			= $_POST['billing_type']; //should be "person"
-            $billingAddress->firstName		= $_POST['billing_first_name'];
-            $billingAddress->lastName		= $_POST['billing_last_name'];
-            $billingAddress->address		= $_POST['billing_address'];
-            $billingAddress->email			= $_POST['billing_email'];
-            $billingAddress->mobilePhone		= $_POST['billing_mobile_phone'];
+            $billingAddress->type			= $paymentParameters['billing_type']; //should be "person"
+            $billingAddress->firstName		= $paymentParameters['billing_first_name'];
+            $billingAddress->lastName		= $paymentParameters['billing_last_name'];
+            $billingAddress->address		= $paymentParameters['billing_address'];
+            $billingAddress->email			= $paymentParameters['billing_email'];
+            $billingAddress->mobilePhone		= $paymentParameters['billing_mobile_phone'];
             $objPmReqCard->invoice->setBillingAddress($billingAddress);
 
             #detalii cu privire la adresa de livrare
             #details on the shipping address
             $shippingAddress 				= new Mobilpay_Payment_Address();
-            $shippingAddress->type			= $_POST['shipping_type'];
-            $shippingAddress->firstName		= $_POST['shipping_first_name'];
-            $shippingAddress->lastName		= $_POST['shipping_last_name'];
-            $shippingAddress->address		= $_POST['shipping_address'];
-            $shippingAddress->email			= $_POST['shipping_email'];
-            $shippingAddress->mobilePhone		= $_POST['shipping_mobile_phone'];
+            $shippingAddress->type			= $paymentParameters['shipping_type'];
+            $shippingAddress->firstName		= $paymentParameters['shipping_first_name'];
+            $shippingAddress->lastName		= $paymentParameters['shipping_last_name'];
+            $shippingAddress->address		= $paymentParameters['shipping_address'];
+            $shippingAddress->email			= $paymentParameters['shipping_email'];
+            $shippingAddress->mobilePhone		= $paymentParameters['shipping_mobile_phone'];
             $objPmReqCard->invoice->setShippingAddress($shippingAddress);
 
             #uncomment the line below in order to see the content of the request
             // TODO for debug
 //            dd(__METHOD__,$objPmReqCard,$objPmReqCard->signature,$objPmReqCard->orderId,get_class($objPmReqCard->invoice));
-            //echo "<pre>";print_r($objPmReqCard);echo "</pre>";
+            echo "<pre>";print_r($objPmReqCard);echo "</pre>";
             $objPmReqCard->encrypt($x509FilePath);
         }
         catch(\Exception $e)
@@ -112,7 +188,6 @@ class LaravelMobilpayController extends Controller
             'paymentUrl' => $paymentUrl
 
         ]);
-        die(__METHOD__.'show');
     }
 
     public function cardConfirm()
@@ -128,7 +203,7 @@ class LaravelMobilpayController extends Controller
             {
                 #calea catre cheia privata
                 #cheia privata este generata de mobilpay, accesibil in Admin -> Conturi de comerciant -> Detalii -> Setari securitate
-                $privateKeyFilePath = 'i.e: /home/certificates/private.key';
+                $privateKeyFilePath = config('laravel-mobilpay.sandbox_public_key');
 
                 try
                 {
