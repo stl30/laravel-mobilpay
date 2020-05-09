@@ -354,9 +354,34 @@ class LaravelMobilpayController extends Controller
         return;
     }
 
-    public function cardReturn()
+    public function cardReturn(Request $request)
     {
-        return view('vendor.laravel-mobilpay.cardReturn');
-        die(__METHOD__.'store');
+        $orderId = (isset($request -> orderId) && $request -> orderId !== null)?$request -> orderId:'';
+        $order = MobilpayTransaction::with('id_transaction','=',$request -> orderId)->first();
+        if($order !== null){
+
+            switch ($order->status){
+                case 'confirmed/captured':
+                    $orderStatus = 'succes';
+                    break;
+                case 'rejected':
+                    $orderStatus = 'rejected';
+                    break;
+                case 'pending':
+                    $orderStatus = 'pending';
+                    break;
+                default:
+                    $orderStatus = 'please contact us';
+                    break;
+            }
+
+
+        }
+
+        return view('vendor.laravel-mobilpay.cardReturn')->with([
+            'orderId' => $orderId,
+            'orderStatus' => $orderStatus
+        ]);
+
     }
 }

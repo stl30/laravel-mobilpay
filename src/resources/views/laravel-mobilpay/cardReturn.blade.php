@@ -49,6 +49,8 @@
                     <p>Multumim!</p>
                     <p>Ai efectuat o plata pentru produsul cu identificatorul <?php echo $_GET['orderId']?></p>
                     <p>Ai primit in confirmURL rezultatul platii. Afiseaza aici un mesaj corespunzator cu starea comenzii <?php echo $_GET['orderId']?></p>
+
+                    <p> Status : <?php echo $orderStatus?></p>
                     <!--
                     Aceasta pagina trebuie sa aiba un continut dinamic, generat in functie de starea platii.
                     Vom face un SELECT in BD, cautand starea comenzii cu identificatorul $_GET['orderId']
