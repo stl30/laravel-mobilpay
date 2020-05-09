@@ -97,17 +97,19 @@ class LaravelMobilpayController extends Controller
 
             #uncomment the line below in order to see the content of the request
             // TODO for debug
-//            dd(__METHOD__,$objPmReqCard);
+//            dd(__METHOD__,$objPmReqCard,$objPmReqCard->signature,$objPmReqCard->orderId,get_class($objPmReqCard->invoice));
             //echo "<pre>";print_r($objPmReqCard);echo "</pre>";
             $objPmReqCard->encrypt($x509FilePath);
         }
-        catch(Exception $exception)
+        catch(\Exception $e)
         {
         }
+        $exception = isset($e)?$e:null;
         //
         return view('vendor.laravel-mobilpay.cardRedirect')->with([
             'objPmReqCard' => $objPmReqCard,
-            'e' => $exception
+            'e' => $exception,
+            'paymentUrl' => $paymentUrl
 
         ]);
         die(__METHOD__.'show');

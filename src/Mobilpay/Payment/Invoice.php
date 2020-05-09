@@ -1,5 +1,6 @@
 <?php
 namespace Stl30\LaravelMobilpay\Mobilpay\Payment;
+use \Exception;
 /**
  * Class Mobilpay_Payment_Invoice
  * @copyright NETOPIA
@@ -43,7 +44,7 @@ class Mobilpay_Payment_Invoice
 		$attr = $elem->attributes->getNamedItem('currency');
 		if($attr == null)
 		{
-			throw new Exception('Mobilpay_Payment_Invoice::loadFromXml failed; currency attribute missing', self::ERROR_LOAD_FROM_XML_CURRENCY_ATTR_MISSING);
+			throw new \Exception('Mobilpay_Payment_Invoice::loadFromXml failed; currency attribute missing', self::ERROR_LOAD_FROM_XML_CURRENCY_ATTR_MISSING);
 		}
 		$this->currency = $attr->nodeValue;
 
@@ -118,7 +119,7 @@ class Mobilpay_Payment_Invoice
 						$this->items[] = $objItem;
 						$amount += $objItem->getTotalAmount();
 					}
-					catch (Exception $e)
+					catch (\Exception $e)
 					{
 						$e = $e;
 						continue;
@@ -141,7 +142,7 @@ class Mobilpay_Payment_Invoice
 					$objRate = new Mobilpay_Payment_Exchange_Rate($rateElem);
 					$this->exchangeRates[] = $objRate;
 				}
-				catch (Exception $e)
+				catch (\Exception $e)
 				{
 					$e = $e;
 					continue;
@@ -150,18 +151,18 @@ class Mobilpay_Payment_Invoice
 		}
 	}
 
-	public function createXmlElement(DOMDocument $xmlDoc)
+	public function createXmlElement(\DOMDocument $xmlDoc)
 	{
-		if(!($xmlDoc instanceof DOMDocument))
+		if(!($xmlDoc instanceof \DOMDocument))
 		{
-			throw new Exception('', self::ERROR_INVALID_PARAMETER);
+			throw new \Exception('', self::ERROR_INVALID_PARAMETER);
 		}
 
 		$xmlInvElem = $xmlDoc->createElement('invoice');
 
 		if($this->currency == null)
 		{
-			throw new Exception('Invalid currency', self::ERROR_INVALID_CURRENCY);
+			throw new \Exception('Invalid currency', self::ERROR_INVALID_CURRENCY);
 		}
 
 		$xmlAttr 			= $xmlDoc->createAttribute('currency');
@@ -224,7 +225,7 @@ class Mobilpay_Payment_Invoice
 					}
 					$xmlAddr->appendChild($xmlElem);
 				}
-				catch(Exception $e)
+				catch(\Exception $e)
 				{
 					$e = $e;
 				}
@@ -240,7 +241,7 @@ class Mobilpay_Payment_Invoice
 					}
 					$xmlAddr->appendChild($xmlElem);
 				}
-				catch(Exception $e)
+				catch(\Exception $e)
 				{
 					$e = $e;
 				}
@@ -269,7 +270,7 @@ class Mobilpay_Payment_Invoice
 					}
 					$xmlItems->appendChild($xmlItem);
 				}
-				catch (Exception $e)
+				catch (\Exception $e)
 				{
 					$e = $e;
 				}
@@ -298,7 +299,7 @@ class Mobilpay_Payment_Invoice
 					}
 					$xmlRates->appendChild($xmlRate);
 				}
-				catch (Exception $e)
+				catch (\Exception $e)
 				{
 					$e = $e;
 				}

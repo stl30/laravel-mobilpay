@@ -1,6 +1,7 @@
 <?php
 namespace Stl30\LaravelMobilpay\Mobilpay\Payment\Request;
-use \Exception;
+use Stl30\LaravelMobilpay\Mobilpay\Payment\Mobilpay_Payment_Invoice;
+
 /**
  * Class Mobilpay_Payment_Request_Card
  * This class can be used for accessing mobilpay.ro payment interface for your configured online services
@@ -29,7 +30,7 @@ class Mobilpay_Payment_Request_Card extends Mobilpay_Payment_Request_Abstract
 		$elems = $elem->getElementsByTagName('invoice');
 		if($elems->length != 1)
 		{
-			throw new Exception('Mobilpay_Payment_Request_Card::loadFromXml failed; invoice element is missing', self::ERROR_LOAD_FROM_XML_ORDER_INVOICE_ELEM_MISSING);
+			throw new \Exception('Mobilpay_Payment_Request_Card::loadFromXml failed; invoice element is missing', self::ERROR_LOAD_FROM_XML_ORDER_INVOICE_ELEM_MISSING);
 		}
 
 		$this->invoice = new Mobilpay_Payment_Invoice($elems->item(0));
@@ -41,10 +42,11 @@ class Mobilpay_Payment_Request_Card extends Mobilpay_Payment_Request_Abstract
 	{
 		if(is_null($this->signature) || is_null($this->orderId) || !($this->invoice instanceof Mobilpay_Payment_Invoice))
 		{
-			throw new Exception('One or more mandatory properties are invalid!', self::ERROR_PREPARE_MANDATORY_PROPERTIES_UNSET);
+			throw new \Exception('One or more mandatory properties are invalid!', self::ERROR_PREPARE_MANDATORY_PROPERTIES_UNSET);
 		}
 
-		$this->_xmlDoc 		= new DOMDocument('1.0', 'utf-8');
+
+		$this->_xmlDoc 		= new \DOMDocument('1.0', 'utf-8');
 		$rootElem 			= $this->_xmlDoc->createElement('order');
 
 		//set payment type attribute
