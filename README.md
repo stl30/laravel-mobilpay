@@ -15,6 +15,12 @@ You can install the package via composer:
 composer require stl30/laravel-mobilpay
 ```
 
+Publish packet
+```bash
+php artisan vendor:publish --provider=Stl30\LaravelMobilpay\LaravelMobilpayServiceProvider
+```
+
+
 ## Usage
 
 ``` php
@@ -48,6 +54,3 @@ If you discover any security related issues, please email stoea.leontin@gmail.co
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
 
-## Laravel Package Boilerplate
-
-This package was generated using the [Laravel Package Boilerplate](https://laravelpackageboilerplate.com).

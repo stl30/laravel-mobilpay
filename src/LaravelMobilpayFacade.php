@@ -4,9 +4,6 @@ namespace Stl30\LaravelMobilpay;
 
 use Illuminate\Support\Facades\Facade;
 
-/**
- * @see \Stl30\LaravelMobilpay\Skeleton\SkeletonClass
- */
 class LaravelMobilpayFacade extends Facade
 {
     /**
