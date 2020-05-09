@@ -3,6 +3,7 @@
 namespace Stl30\LaravelMobilpay\Http\Controllers;
 use \Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Stl30\LaravelMobilpay\Mobilpay\Payment\Request\Mobilpay_Payment_Request_Abstract;
 use Stl30\LaravelMobilpay\Mobilpay\Payment\Request\Mobilpay_Payment_Request_Card;
@@ -10,6 +11,7 @@ use Stl30\LaravelMobilpay\Mobilpay\Payment\Invoice;
 use Stl30\LaravelMobilpay\Mobilpay\Payment\Mobilpay_Payment_Address;
 use Stl30\LaravelMobilpay\Mobilpay\Payment\Request\Mobilpay_Payment_Request_Notify;
 use Stl30\LaravelMobilpay\Mobilpay\Payment\Mobilpay_Payment_Invoice;
+use Stl30\LaravelMobilpay\MobilpayTransaction;
 
 class LaravelMobilpayController extends Controller
 {
@@ -26,6 +28,44 @@ class LaravelMobilpayController extends Controller
     {
         //
         return view('vendor.laravel-mobilpay.card');
+    }
+
+    public function addTransaction(Mobilpay_Payment_Request_Card $mobilpayRequestObject)
+    {
+        $transaction = new MobilpayTransaction();
+        $transaction-> id_transaction = $mobilpayRequestObject-> orderId;
+        $transaction-> request_status = 0;
+        $transaction-> value = $mobilpayRequestObject-> invoice -> amount;
+        $transaction-> currency = $mobilpayRequestObject-> invoice -> currency;
+        $transaction-> details = $mobilpayRequestObject-> invoice -> details;
+        $transaction-> request_object = json_encode($mobilpayRequestObject,true);
+        return $transaction -> save();
+    }
+
+    public function updateTransaction(Mobilpay_Payment_Request_Abstract $mobilpayReturnObject, $orderStatus='possible error')
+    {
+        $transaction = MobilpayTransaction::where('id_transaction','=',$mobilpayReturnObject -> orderId)->firstOrFail();
+        $transaction-> value = $mobilpayReturnObject-> invoice -> amount;
+        $transaction-> currency = $mobilpayReturnObject-> invoice -> currency;
+        $transaction-> details = $mobilpayReturnObject-> invoice -> details;
+        $transaction-> request_status = 1;
+        $transaction-> status = $orderStatus;
+        $transaction-> client_name = $mobilpayReturnObject-> objPmNotify -> customer-> firstName;
+        $transaction-> client_surname = $mobilpayReturnObject-> objPmNotify -> customer-> lastName;
+        $transaction-> client_address = $mobilpayReturnObject-> objPmNotify -> customer-> address;
+        $transaction-> client_email = $mobilpayReturnObject-> objPmNotify -> customer-> email;
+        $transaction-> client_phone = $mobilpayReturnObject-> objPmNotify -> customer-> mobilePhone;
+        $transaction-> return_request_object = json_encode($mobilpayReturnObject,true);
+        return $transaction-> update();
+    }
+
+    function addAutomatedTransactionError($errorCode,$errorType,$errorMessage,Mobilpay_Payment_Request_Abstract $mobilpayReturnObject) {
+        $transaction = new MobilpayTransaction();
+        $transaction-> id_transaction = 'error code:'.$errorCode.'>> error type:'.$errorType.'>> error message:'.$errorMessage;
+        $transaction-> request_status = $errorType;
+        $transaction-> request_object = json_encode($mobilpayReturnObject,true);
+        $transaction-> status = $errorMessage;
+        return $transaction -> save();
     }
 
     public static function validatePaymentDetails(Request $request)
@@ -174,7 +214,7 @@ class LaravelMobilpayController extends Controller
             #uncomment the line below in order to see the content of the request
             // TODO for debug
 //            dd(__METHOD__,$objPmReqCard,$objPmReqCard->signature,$objPmReqCard->orderId,get_class($objPmReqCard->invoice));
-            echo "<pre>";print_r($objPmReqCard);echo "</pre>";
+//            echo "<pre>";print_r($objPmReqCard);echo "</pre>";
             $objPmReqCard->encrypt($x509FilePath);
         }
         catch(\Exception $e)
@@ -196,7 +236,7 @@ class LaravelMobilpayController extends Controller
         $errorCode 		= 0;
         $errorType		= Mobilpay_Payment_Request_Abstract::CONFIRM_ERROR_TYPE_NONE;
         $errorMessage	= '';
-
+        $orderStatus    = '';
         if (strcasecmp($_SERVER['REQUEST_METHOD'], 'post') == 0)
         {
             if(isset($_POST['env_key']) && isset($_POST['data']))
@@ -220,42 +260,49 @@ class LaravelMobilpayController extends Controller
                             case 'confirmed':
                                 #cand action este confirmed avem certitudinea ca banii au plecat din contul posesorului de card si facem update al starii comenzii si livrarea produsului
                                 //update DB, SET status = "confirmed/captured"
+                                $orderStatus = 'confirmed/captured';
                                 $errorMessage = $objPmReq->objPmNotify->errorMessage;
                                 break;
                             case 'confirmed_pending':
                                 #cand action este confirmed_pending inseamna ca tranzactia este in curs de verificare antifrauda. Nu facem livrare/expediere. In urma trecerii de aceasta verificare se va primi o noua notificare pentru o actiune de confirmare sau anulare.
                                 //update DB, SET status = "pending"
+                                $orderStatus = 'pending';
                                 $errorMessage = $objPmReq->objPmNotify->errorMessage;
                                 break;
                             case 'paid_pending':
                                 #cand action este paid_pending inseamna ca tranzactia este in curs de verificare. Nu facem livrare/expediere. In urma trecerii de aceasta verificare se va primi o noua notificare pentru o actiune de confirmare sau anulare.
                                 //update DB, SET status = "pending"
+                                $orderStatus = 'pending';
                                 $errorMessage = $objPmReq->objPmNotify->errorMessage;
                                 break;
                             case 'paid':
                                 #cand action este paid inseamna ca tranzactia este in curs de procesare. Nu facem livrare/expediere. In urma trecerii de aceasta procesare se va primi o noua notificare pentru o actiune de confirmare sau anulare.
                                 //update DB, SET status = "open/preauthorized"
+                                $orderStatus = 'open/preauthorized';
                                 $errorMessage = $objPmReq->objPmNotify->errorMessage;
                                 break;
                             case 'canceled':
                                 #cand action este canceled inseamna ca tranzactia este anulata. Nu facem livrare/expediere.
                                 //update DB, SET status = "canceled"
+                                $orderStatus = 'canceled';
                                 $errorMessage = $objPmReq->objPmNotify->errorMessage;
                                 break;
                             case 'credit':
                                 #cand action este credit inseamna ca banii sunt returnati posesorului de card. Daca s-a facut deja livrare, aceasta trebuie oprita sau facut un reverse.
                                 //update DB, SET status = "refunded"
+                                $orderStatus = 'refunded';
                                 $errorMessage = $objPmReq->objPmNotify->errorMessage;
                                 break;
                             default:
                                 $errorType		= Mobilpay_Payment_Request_Abstract::CONFIRM_ERROR_TYPE_PERMANENT;
                                 $errorCode 		= Mobilpay_Payment_Request_Abstract::ERROR_CONFIRM_INVALID_ACTION;
-                                $errorMessage 	= 'mobilpay_refference_action paramaters is invalid';
+                                $orderStatus = $errorMessage 	= 'mobilpay_refference_action paramaters is invalid';
                                 break;
                         }
                     }
                     else {
                         //update DB, SET status = "rejected"
+                        $orderStatus = 'rejected';
                         $errorMessage = $objPmReq->objPmNotify->errorMessage;
                     }
                 }
@@ -263,28 +310,48 @@ class LaravelMobilpayController extends Controller
                 {
                     $errorType 		= Mobilpay_Payment_Request_Abstract::CONFIRM_ERROR_TYPE_TEMPORARY;
                     $errorCode		= $e->getCode();
-                    $errorMessage 	= $e->getMessage();
+                    $orderStatus = $errorMessage = $e->getMessage();
                 }
             }
             else
             {
                 $errorType 		= Mobilpay_Payment_Request_Abstract::CONFIRM_ERROR_TYPE_PERMANENT;
                 $errorCode		= Mobilpay_Payment_Request_Abstract::ERROR_CONFIRM_INVALID_POST_PARAMETERS;
-                $errorMessage 	= 'mobilpay.ro posted invalid parameters';
+                $orderStatus = $errorMessage 	= 'mobilpay.ro posted invalid parameters';
             }
         }
         else
         {
             $errorType 		= Mobilpay_Payment_Request_Abstract::CONFIRM_ERROR_TYPE_PERMANENT;
             $errorCode		= Mobilpay_Payment_Request_Abstract::ERROR_CONFIRM_INVALID_POST_METHOD;
-            $errorMessage 	= 'invalid request metod for payment confirmation';
+            $orderStatus = $errorMessage 	= 'invalid request metod for payment confirmation';
         }
 
-        return view('vendor.laravel-mobilpay.cardConfirm')->with([
-            'errorCode' => $errorCode,
-            'errorType' => $errorType,
-            'errorMessage' => $errorMessage
-        ]);
+
+        if($errorCode == 0)
+        {
+            if($this -> updateTransaction($objPmReq,$orderStatus) !== true){
+                Log::debug('Could not update transaction <<>> '.json_encode($objPmReq,true).' <<<>>> with orderStatus:'.$orderStatus);
+            }
+            else{
+                Log::debug('Update transaction success <<>> '.json_encode($objPmReq,true).' <<<>>> with orderStatus:'.$orderStatus);
+            }
+            Log::debug('No errors');
+            Log::debug(json_encode($errorMessage,true));
+        }
+        else
+        {
+            $objPmReq = (isset($objPmReq) && is_object($objPmReq))?$objPmReq:'';
+            if($this -> addAutomatedTransactionError($errorCode,$errorType,$errorMessage,$objPmReq) !== true){
+                Log::debug('Could not addAutomatedTransactionError <<>> errortype:'.$errorType.'<<<>>> error code:'.$errorCode.'<<<<>>>'.json_encode($errorMessage,true));
+            }
+            else{
+                Log::debug('addedAutomatedTransactionError <<>> errortype:'.$errorType.'<<<>>> error code:'.$errorCode.'<<<<>>>'.json_encode($errorMessage,true));
+            }
+            Log::debug('With errors');
+            Log::debug('errortype:'.$errorType.'<<<>>> error code:'.$errorCode.'<<<<>>>'.json_encode($errorMessage,true));
+        }
+        return;
     }
 
     public function cardReturn()

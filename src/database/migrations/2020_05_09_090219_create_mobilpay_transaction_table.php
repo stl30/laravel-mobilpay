@@ -13,7 +13,7 @@ class CreateMobilpayTransactionTable extends Migration
      */
     public function up()
     {
-        Schema::create('mobilpay_transaction', function (Blueprint $table) {
+        Schema::create('mobilpay_transactions', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->char('id_transaction');
             $table->char('type')->comment('person - payer is a person; company - payer is a company;');
@@ -31,6 +31,7 @@ class CreateMobilpayTransactionTable extends Migration
             $table->text('client_email');
             $table->text('client_phone');
             $table->text('request_object')->comment('data we send to mobilpay');
+            $table->text('return_request_object')->comment('data we receive from mobilpay');
             $table->timestamps();
         });
     }
@@ -42,6 +43,6 @@ class CreateMobilpayTransactionTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('mobilpay_transaction');
+        Schema::dropIfExists('mobilpay_transactions');
     }
 }
