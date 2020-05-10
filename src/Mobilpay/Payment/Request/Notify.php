@@ -1,6 +1,8 @@
 <?php
 namespace Stl30\LaravelMobilpay\Mobilpay\Payment\Request;
 
+use Stl30\LaravelMobilpay\Mobilpay\Payment\Mobilpay_Payment_Address;
+
 /**
  * mobilPay
  *
@@ -95,7 +97,7 @@ class Mobilpay_Payment_Request_Notify {
      * @return Mobilpay_Payment_Reuquest_Notify
      * @throws Exception On missing xml attributes
      */
-    public function loadFromXml(DOMElement $elem) {
+    public function loadFromXml(\DOMElement $elem) {
         $attr = $elem->attributes->getNamedItem('timestamp');
         if ($attr != null) {
             $this->timestamp = $attr->nodeValue;

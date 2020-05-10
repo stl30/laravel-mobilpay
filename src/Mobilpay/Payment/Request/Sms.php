@@ -25,7 +25,7 @@ class Mobilpay_Payment_Request_Sms extends Mobilpay_Payment_Request_Abstract
 		$this->type = self::PAYMENT_TYPE_SMS;
 	}
 
-	protected function _loadFromXml(DOMElement $elem)
+	protected function _loadFromXml(\DOMElement $elem)
 	{
 		parent::_parseFromXml($elem);
 

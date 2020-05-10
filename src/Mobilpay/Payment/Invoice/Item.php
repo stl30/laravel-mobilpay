@@ -27,7 +27,7 @@ class Mobilpay_Payment_Invoice_Item
 	public $price		= null;
 	public $vat			= null;
 
-	public function __construct(DOMNode $elem = null)
+	public function __construct(\DOMNode $elem = null)
 	{
 		if($elem != null)
 		{
@@ -35,7 +35,7 @@ class Mobilpay_Payment_Invoice_Item
 		}
 	}
 
-	protected function loadFromXml(DOMNode $elem)
+	protected function loadFromXml(\DOMNode $elem)
 	{
 		$elems = $elem->getElementsByTagName('code');
 		if($elems->length != 1)

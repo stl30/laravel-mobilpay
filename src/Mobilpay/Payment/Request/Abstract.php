@@ -121,7 +121,7 @@ abstract class Mobilpay_Payment_Request_Abstract
 	}
 
 	abstract protected function _prepare();
-	abstract protected function _loadFromXml(DOMElement $elem);
+	abstract protected function _loadFromXml(\DOMElement $elem);
 
 	static public function factory($data)
 	{
@@ -232,7 +232,7 @@ abstract class Mobilpay_Payment_Request_Abstract
 		return $this->_objRequestInfo;
 	}
 
-	protected function _parseFromXml(DOMNode $elem)
+	protected function _parseFromXml(\DOMNode $elem)
 	{
 		$xmlAttr = $elem->attributes->getNamedItem('id');
 		if($xmlAttr == null || strlen((string)$xmlAttr->nodeValue) == 0)
