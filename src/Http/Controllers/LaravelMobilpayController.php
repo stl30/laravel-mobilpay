@@ -136,7 +136,8 @@ class LaravelMobilpayController extends Controller
 
     public function cardRedirect(array $paymentParameters = array())
     {
-        //DEBUG TO DELETE
+        //TODO DEBUG TO DELETE
+        echo __METHOD__.' You are using debug payment parameters';
         $paymentParameters['payment_amount'] = 111;
         $paymentParameters['payment_details'] = 'payment details';
         $paymentParameters['order_id'] = uniqid(time().'-','');
@@ -367,7 +368,7 @@ class LaravelMobilpayController extends Controller
     public function cardReturn(Request $request)
     {
 
-        $orderStatus = 'eroare';
+        $orderStatus = 'error';
         $orderId = (isset($request -> orderId) && $request -> orderId !== null)?$request -> orderId:'';
         $order = MobilpayTransaction::where('id_transaction','=',$request -> orderId)->first();
         if($order !== null){
