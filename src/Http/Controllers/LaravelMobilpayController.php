@@ -367,7 +367,7 @@ class LaravelMobilpayController extends Controller
 
         $orderStatus = 'eroare';
         $orderId = (isset($request -> orderId) && $request -> orderId !== null)?$request -> orderId:'';
-        $order = MobilpayTransaction::with('id_transaction','=',$request -> orderId)->first();
+        $order = MobilpayTransaction::where('id_transaction','=',$request -> orderId)->first();
         if($order !== null){
 
             switch ($order->status){
