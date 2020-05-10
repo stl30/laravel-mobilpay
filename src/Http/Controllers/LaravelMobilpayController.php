@@ -59,7 +59,7 @@ class LaravelMobilpayController extends Controller
         return $transaction-> update();
     }
 
-    function addAutomatedTransactionError($errorCode,$errorType,$errorMessage,Mobilpay_Payment_Request_Abstract $mobilpayReturnObject) {
+    function addAutomatedTransactionError($errorCode,$errorType,$errorMessage,$mobilpayReturnObject) {
         $transaction = new MobilpayTransaction();
         $transaction-> id_transaction = 'error code:'.$errorCode.'>> error type:'.$errorType.'>> error message:'.$errorMessage;
         $transaction-> request_status = $errorType;
@@ -251,7 +251,7 @@ class LaravelMobilpayController extends Controller
             {
                 #calea catre cheia privata
                 #cheia privata este generata de mobilpay, accesibil in Admin -> Conturi de comerciant -> Detalii -> Setari securitate
-                $privateKeyFilePath = config('laravel-mobilpay.sandbox_public_key');
+                $privateKeyFilePath = config('laravel-mobilpay.sandbox_private_key');
 
                 try
                 {
@@ -335,7 +335,8 @@ class LaravelMobilpayController extends Controller
             $orderStatus = $errorMessage 	= 'invalid request metod for payment confirmation';
         }
 
-
+        header('Content-type: application/xml');
+        echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
         if($errorCode == 0)
         {
             if($this -> updateTransaction($objPmReq,$orderStatus) !== true){
@@ -346,6 +347,7 @@ class LaravelMobilpayController extends Controller
             }
             Log::debug('No errors');
             Log::debug(json_encode($errorMessage,true));
+            echo "<crc>{$errorMessage}</crc>";
         }
         else
         {
@@ -358,8 +360,8 @@ class LaravelMobilpayController extends Controller
             }
             Log::debug('With errors');
             Log::debug('errortype:'.$errorType.'<<<>>> error code:'.$errorCode.'<<<<>>>'.json_encode($errorMessage,true));
+            echo "<crc error_type=\"{$errorType}\" error_code=\"{$errorCode}\">{$errorMessage}</crc>";
         }
-        return;
     }
 
     public function cardReturn(Request $request)
