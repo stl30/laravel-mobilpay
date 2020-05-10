@@ -238,7 +238,7 @@ class Mobilpay_Payment_Request_Notify {
      * @param DOMDocument $xmlDoc
      * @return DOMElement
      */
-    public function createXmlElement(DOMDocument $xmlDoc) {
+    public function createXmlElement(\DOMDocument $xmlDoc) {
         $xmlNotifyElem = $xmlDoc->createElement('mobilpay');
         $attr = $xmlDoc->createAttribute('timestamp');
         $attr->nodeValue = date('YmdHis');

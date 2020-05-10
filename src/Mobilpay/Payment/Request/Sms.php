@@ -108,7 +108,7 @@ class Mobilpay_Payment_Request_Sms extends Mobilpay_Payment_Request_Abstract
 			throw new Exception('One or more mandatory properties are invalid!', self::ERROR_PREPARE_MANDATORY_PROPERTIES_UNSET);
 		}
 
-		$this->_xmlDoc 		= new DOMDocument('1.0', 'utf-8');
+		$this->_xmlDoc 		= new \DOMDocument('1.0', 'utf-8');
 		$rootElem 			= $this->_xmlDoc->createElement('order');
 
 		//set payment type attribute
