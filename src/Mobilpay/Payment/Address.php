@@ -24,7 +24,7 @@ class Mobilpay_Payment_Address
     public $email = null;
     public $mobilePhone = null;
 
-    public function __construct (DOMNode $elem = null)
+    public function __construct (\DOMNode $elem = null)
     {
 
         if ($elem != null)
@@ -33,7 +33,7 @@ class Mobilpay_Payment_Address
         }
     }
 
-    protected function loadFromXml (DOMNode $elem)
+    protected function loadFromXml (\DOMNode $elem)
     {
 
         $attr = $elem->attributes->getNamedItem('type');
