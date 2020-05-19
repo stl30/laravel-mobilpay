@@ -29,6 +29,7 @@ class LaravelMobilpayController extends Controller
 
     public function card()
     {
+        //
         return view('vendor.laravel-mobilpay.card');
     }
 
