@@ -7,6 +7,9 @@
 
 This is where your description should go.
 
+## Requirements
+1.Needs web and auth middleware
+
 ## Installation
 
 You can install the package via composer:
@@ -24,8 +27,8 @@ Publish package in your application
 php artisan vendor:publish --provider=Stl30\LaravelMobilpay\LaravelMobilpayServiceProvider
 ```
 
-Complete package configuration file found in config/laravel-mobilpay.php
-
+1.Complete package configuration file found in config/laravel-mobilpay.php
+2.doc for has transaction observer
 
 
 

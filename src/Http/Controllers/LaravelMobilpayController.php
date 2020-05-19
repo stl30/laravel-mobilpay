@@ -2,10 +2,12 @@
 
 namespace Stl30\LaravelMobilpay\Http\Controllers;
 
+use App\LaravelMobilpay\LaravelMobilpayCustomActionsAndNotifications;
 use \Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Stl30\LaravelMobilpay\CustomActionsAndNotifications;
 use Stl30\LaravelMobilpay\Mobilpay\Payment\Request\Mobilpay_Payment_Request_Abstract;
 use Stl30\LaravelMobilpay\Mobilpay\Payment\Request\Mobilpay_Payment_Request_Card;
 use Stl30\LaravelMobilpay\Mobilpay\Payment\Invoice;
@@ -15,15 +17,14 @@ use Stl30\LaravelMobilpay\Mobilpay\Payment\Mobilpay_Payment_Invoice;
 use Stl30\LaravelMobilpay\MobilpayTransaction;
 
 class LaravelMobilpayController extends Controller
-{
-    function getOrderId()
-    {
-        return uniqid(time() . '-', '');
-    }
+{   /**
+     * @var CustomActionsAndNotifications
+     */
+    public $actionsAndNotifications ;
 
-    function getOrderAmount()
+    public function __construct()
     {
-        return 111;
+        $this -> actionsAndNotifications = new LaravelMobilpayCustomActionsAndNotifications();
     }
 
     public function card()
@@ -32,11 +33,19 @@ class LaravelMobilpayController extends Controller
         return view('vendor.laravel-mobilpay.card');
     }
 
-    public function addTransaction(Mobilpay_Payment_Request_Card $mobilpayRequestObject)
+    public function addTransaction(Mobilpay_Payment_Request_Card $mobilpayRequestObject,$customDataParameter='')
     {
+        $this -> actionsAndNotifications ->setActions([
+            'transaction' => 'start create',
+            'time' => date('Y-m-d H:i:s')
+        ]);
+
+        $this -> actionsAndNotifications -> beforeCreatingTransaction($mobilpayRequestObject,$customDataParameter);
+
         $transaction = new MobilpayTransaction();
         $transaction->id_transaction = $mobilpayRequestObject->orderId;
         $transaction->request_status = 0;
+        $transaction->status = 'initiated';
         $transaction->value = $mobilpayRequestObject->invoice->amount;
         $transaction->currency = $mobilpayRequestObject->invoice->currency;
         $transaction->details = $mobilpayRequestObject->invoice->details;
@@ -47,11 +56,34 @@ class LaravelMobilpayController extends Controller
         $transaction->client_address = $mobilpayRequestObject->invoice->getBillingAddress()->address ?? null;
         $transaction->client_phone = $mobilpayRequestObject->invoice->getBillingAddress()->mobilePhone ?? null;
         $transaction->request_object = json_encode($mobilpayRequestObject, true);
-        return $transaction->save();
+        $transaction->custom_data = $customDataParameter;
+        $addTransactionIsSuccessful = $transaction->save();
+
+        if($addTransactionIsSuccessful){
+            $this -> actionsAndNotifications ->setNotifications([
+                'request_status' => $transaction->request_status,
+                'id_transaction_created' => $transaction->id,
+            ]);
+            $this -> actionsAndNotifications ->setActions([
+                'transaction' => 'successfully created',
+            ]);
+        }
+
+
+        $this -> actionsAndNotifications -> afterCreatingTransaction($transaction,$addTransactionIsSuccessful);
+
+        return $addTransactionIsSuccessful;
     }
 
     public function updateTransaction(Mobilpay_Payment_Request_Abstract $mobilpayReturnObject, $orderStatus = 'possible error')
     {
+        $this -> actionsAndNotifications ->setActions([
+            'transaction' => 'start update',
+            'time' => date('Y-m-d H:i:s')
+        ]);
+
+        $this -> actionsAndNotifications -> beforeUpdatingTransaction($mobilpayReturnObject, $orderStatus);
+
         $transaction = MobilpayTransaction::where('id_transaction', '=', $mobilpayReturnObject->orderId)->firstOrFail();
         $transaction->value = $mobilpayReturnObject->invoice->amount;
         $transaction->currency = $mobilpayReturnObject->invoice->currency;
@@ -64,17 +96,53 @@ class LaravelMobilpayController extends Controller
         $transaction->client_email = $mobilpayReturnObject->objPmNotify->customer->email;
         $transaction->client_phone = $mobilpayReturnObject->objPmNotify->customer->mobilePhone;
         $transaction->return_request_object = json_encode($mobilpayReturnObject, true);
-        return $transaction->update();
+        $updatedIsSuccessful = $transaction->update();
+
+        if($updatedIsSuccessful){
+            $this -> actionsAndNotifications ->setNotifications([
+                'status' => $transaction->status,
+                'request_status' => $transaction->request_status,
+                'id_transaction_created' => $transaction->id,
+            ]);
+            $this -> actionsAndNotifications ->setActions([
+                'transaction' => 'successfully updated',
+                'time' => date('Y-m-d H:i:s')
+            ]);
+        }
+
+        $this -> actionsAndNotifications ->afterUpdatingTransaction($transaction, $updatedIsSuccessful);
+
+        return $updatedIsSuccessful;
     }
 
     function addAutomatedTransactionError($errorCode, $errorType, $errorMessage, $mobilpayReturnObject)
     {
+
+
+        $this -> actionsAndNotifications ->setActions([
+            'error transaction' => 'start creating',
+            'time' => date('Y-m-d H:i:s')
+        ]);
+
         $transaction = new MobilpayTransaction();
         $transaction->id_transaction = 'error code:' . $errorCode . '>> error type:' . $errorType . '>> error message:' . $errorMessage;
         $transaction->request_status = $errorType;
         $transaction->request_object = json_encode($mobilpayReturnObject, true);
         $transaction->status = $errorMessage;
-        return $transaction->save();
+        $addTransactionIsSuccessful = $transaction->save();
+
+        if($addTransactionIsSuccessful){
+            $this -> actionsAndNotifications ->setNotifications([
+                'status' => $transaction->status,
+                'request_status' => $transaction->request_status,
+            ]);
+            $this -> actionsAndNotifications ->setActions([
+                'error transaction' => 'successfully created',
+                'time' => date('Y-m-d H:i:s')
+            ]);
+        }
+
+        return $addTransactionIsSuccessful;
     }
 
     public static function validatePaymentDetails(array $parameters = [])
@@ -100,6 +168,8 @@ class LaravelMobilpayController extends Controller
         }
 
         $optionalParameters = [
+            #custom data / if you need some custom data save on the transactions table
+            'custom_data' => '',
             #optional values
             'promotion_code' => '',
             'currency' => '',
@@ -134,6 +204,7 @@ class LaravelMobilpayController extends Controller
             'shipping_bank' => '',
             'shipping_iban' => '',
         ];
+
 
         foreach ($optionalParameters as $key => $Value) {
             if (isset($parameters[$key]) && $parameters[$key] !== null) {
@@ -223,7 +294,8 @@ class LaravelMobilpayController extends Controller
 //            dd(__METHOD__,$objPmReqCard,$objPmReqCard->signature,$objPmReqCard->orderId,get_class($objPmReqCard->invoice));
 //            echo "<pre>";print_r($objPmReqCard);echo "</pre>";
             $objPmReqCard->encrypt($x509FilePath);
-            $this->addTransaction($objPmReqCard);
+            $customDataForTransaction = $paymentParameters['custom_data'] ?? '';
+            $this->addTransaction($objPmReqCard,$customDataForTransaction);
         } catch (\Exception $e) {
             $exception = isset($e) ? $e : null;
         }
@@ -238,6 +310,7 @@ class LaravelMobilpayController extends Controller
 
     public function cardConfirm()
     {
+
         $errorCode = 0;
         $errorType = Mobilpay_Payment_Request_Abstract::CONFIRM_ERROR_TYPE_NONE;
         $errorMessage = '';
@@ -324,24 +397,24 @@ class LaravelMobilpayController extends Controller
         header('Content-type: application/xml');
         echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
         if ($errorCode == 0) {
-            if ($this->updateTransaction($objPmReq, $orderStatus) !== true) {
-                Log::debug('Could not update transaction <<>> ' . json_encode($objPmReq, true) . ' <<<>>> with orderStatus:' . $orderStatus);
+            $updateTransaction = $this->updateTransaction($objPmReq, $orderStatus);
+            if ($updateTransaction !== true) {
+//                Log::debug('Could not update transaction <<>> ' . json_encode($objPmReq, true) . ' <<<>>> with orderStatus:' . $orderStatus);
             } else {
-                Log::debug('Update transaction success <<>> ' . json_encode($objPmReq, true) . ' <<<>>> with orderStatus:' . $orderStatus);
+//                Log::debug('Update transaction success <<>> ' . json_encode($objPmReq, true) . ' <<<>>> with orderStatus:' . $orderStatus);
             }
-            Log::debug('No errors');
-            Log::debug(json_encode($errorMessage, true));
+//            Log::debug('No errors');
+//            Log::debug(json_encode($errorMessage, true));
             echo "<crc>{$errorMessage}</crc>";
         } else {
             $objPmReq = (isset($objPmReq) && is_object($objPmReq)) ? $objPmReq : '';
             if ($this->addAutomatedTransactionError($errorCode, $errorType, $errorMessage, $objPmReq) !== true) {
-                Log::debug('Could not addAutomatedTransactionError <<>> errortype:' . $errorType . '<<<>>> error code:' . $errorCode . '<<<<>>>' . json_encode($errorMessage,
-                        true));
+                Log::debug('Could not addAutomatedTransactionError <<>> errortype:' . $errorType . '<<<>>> error code:' . $errorCode . '<<<<>>>' . json_encode($errorMessage,true));
             } else {
-                Log::debug('addedAutomatedTransactionError <<>> errortype:' . $errorType . '<<<>>> error code:' . $errorCode . '<<<<>>>' . json_encode($errorMessage, true));
+//                Log::debug('addedAutomatedTransactionError <<>> errortype:' . $errorType . '<<<>>> error code:' . $errorCode . '<<<<>>>' . json_encode($errorMessage, true));
             }
-            Log::debug('With errors');
-            Log::debug('errortype:' . $errorType . '<<<>>> error code:' . $errorCode . '<<<<>>>' . json_encode($errorMessage, true));
+//            Log::debug('With errors');
+//            Log::debug('errortype:' . $errorType . '<<<>>> error code:' . $errorCode . '<<<<>>>' . json_encode($errorMessage, true));
             echo "<crc error_type=\"{$errorType}\" error_code=\"{$errorCode}\">{$errorMessage}</crc>";
         }
     }
@@ -363,7 +436,7 @@ class LaravelMobilpayController extends Controller
                     $orderStatus = 'pending';
                     break;
                 default:
-                    $orderStatus = 'please contact us';
+                    $orderStatus = 'error';
                     break;
             }
         }
