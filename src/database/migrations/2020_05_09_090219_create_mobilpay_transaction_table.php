@@ -32,6 +32,7 @@ class CreateMobilpayTransactionTable extends Migration
             $table->text('client_phone')->nullable();
             $table->text('request_object')->nullable()->comment('data we send to mobilpay');
             $table->text('return_request_object')->nullable()->comment('data we receive from mobilpay');
+            $table->longText('custom_data')->nullable()->comment('insert here what other data you need');
             $table->timestamps();
         });
     }

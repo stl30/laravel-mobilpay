@@ -2,6 +2,8 @@
 
 namespace Stl30\LaravelMobilpay;
 
+use App\Observers\TransactionsObserver;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 
 class LaravelMobilpayServiceProvider extends ServiceProvider
@@ -39,9 +41,36 @@ class LaravelMobilpayServiceProvider extends ServiceProvider
                 __DIR__.'/resources/lang' => resource_path('lang/vendor/laravel-mobilpay'),
             ], 'lang');
 
+
+            // Publishing Observes files.
+            //if you want to use observers uncoment below 
+//            $this->publishes([
+//                __DIR__.'/Observers' => app_path('Observers'),
+//            ]);
+            
+            // Publishing custom classes files.
+            $this->publishes([
+                __DIR__.'/LaravelMobilpay' => app_path('LaravelMobilpay'),
+            ]);
+
             // Registering package commands.
             // $this->commands([]);
         }
+        
+//        if you want to use observers uncoment below
+//        if(config('laravel-mobilpay.transaction_observer_active')){
+//
+//            try {
+//                if(class_exists('App\Observers\TransactionsObserver')){
+//                    MobilpayTransaction::observe(TransactionsObserver::class);
+//                }
+//                else{
+//                    Log::debug(__METHOD__.' Transactions observer does not exist');
+//                }
+//            } catch (Exception $e) {
+//            }
+//
+//        }
     }
 
     /**
