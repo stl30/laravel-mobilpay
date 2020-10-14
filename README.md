@@ -28,6 +28,7 @@ php artisan vendor:publish --provider=Stl30\LaravelMobilpay\LaravelMobilpayServi
 ```
 
 1.Complete package configuration file found in config/laravel-mobilpay.php
+
 2.doc for has transaction observer
 
 
