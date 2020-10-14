@@ -11,41 +11,41 @@ class LaravelMobilpayController extends \Stl30\LaravelMobilpay\Http\Controllers\
 {
     public function card()
     {
-        parent::card();
+        return parent::card();
     }
 
     public function addTransaction(Mobilpay_Payment_Request_Card $mobilpayRequestObject, $customDataParameter = '')
     {
-        parent::addTransaction($mobilpayRequestObject, $customDataParameter);
+        return parent::addTransaction($mobilpayRequestObject, $customDataParameter);
     }
 
     public function updateTransaction(Mobilpay_Payment_Request_Abstract $mobilpayReturnObject, $orderStatus = 'possible error')
     {
-        parent::updateTransaction($mobilpayReturnObject, $orderStatus);
+        return parent::updateTransaction($mobilpayReturnObject, $orderStatus);
     }
 
     function addAutomatedTransactionError($errorCode, $errorType, $errorMessage, $mobilpayReturnObject)
     {
-        parent::addAutomatedTransactionError($errorCode, $errorType, $errorMessage, $mobilpayReturnObject);
+        return parent::addAutomatedTransactionError($errorCode, $errorType, $errorMessage, $mobilpayReturnObject);
     }
 
     public static function validatePaymentDetails(array $parameters = [])
     {
-        parent::validatePaymentDetails($parameters);
+        return parent::validatePaymentDetails($parameters);
     }
 
     public function cardRedirect(array $paymentParameters = array())
     {
-        parent::cardRedirect($paymentParameters);
+        return parent::cardRedirect($paymentParameters);
     }
 
     public function cardConfirm()
     {
-        parent::cardConfirm();
+        return parent::cardConfirm();
     }
 
     public function cardReturn(Request $request)
     {
-        parent::cardReturn($request);
+        return parent::cardReturn($request);
     }
 }
