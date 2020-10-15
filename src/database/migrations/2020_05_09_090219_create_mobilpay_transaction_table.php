@@ -16,7 +16,8 @@ class CreateMobilpayTransactionTable extends Migration
         Schema::create('mobilpay_transactions', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->char('id_transaction')->nullable();
-            $table->char('transaction_token')->nullable();
+            $table->char('token_id')->nullable();
+            $table->char('token_expiration_date')->nullable();
             $table->char('type')->nullable()->comment('person - payer is a person; company - payer is a company;');
             $table->integer('request_status')->default(0)->comment('0-order sent by client 1- order ok returned by mobilpay 2- order with errors returned by mobilpay');
             $table->text('status')->nullable();

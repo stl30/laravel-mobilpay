@@ -8,7 +8,8 @@ class MobilpayTransaction extends Model
 {
     protected $fillable = [
         'id_transaction',
-        'transaction_token',
+        'token_id',
+        'token_expiration_date',
         'type',
         'request_status',
         'status',

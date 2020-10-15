@@ -264,7 +264,10 @@ class LaravelMobilpayController extends Controller
             #selected installments number; its value should be within the available installments defined above
             //$objPmReqCard->invoice->selectedInstallments= '3';
             //platile ulterioare vor contine in request si informatiile despre token. Prima plata nu va contine linia de mai jos.
-//            $objPmReqCard->invoice->tokenId = 'token_id';
+            if($paymentParameters['token_id'] !== null){
+                $objPmReqCard->invoice->tokenId = $paymentParameters['token_id'];
+            }
+
             $objPmReqCard->invoice->details = $paymentParameters['payment_details'];
 
             #detalii cu privire la adresa posesorului cardului
