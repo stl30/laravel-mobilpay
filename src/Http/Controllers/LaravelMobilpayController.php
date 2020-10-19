@@ -93,7 +93,7 @@ class LaravelMobilpayController extends Controller
         $this->actionsAndNotifications->beforeUpdatingTransaction($mobilpayReturnObject, $orderStatus);
 
         $transaction = MobilpayTransaction::where('id_transaction', '=', $mobilpayReturnObject->orderId)->firstOrFail();
-        if (strlen($mobilpayReturnObject->objPmNotify->customer->token_id)) {
+        if (isset($mobilpayReturnObject->objPmNotify->token_id) && strlen($mobilpayReturnObject->objPmNotify->token_id)) {
             $transaction->token_id = $mobilpayReturnObject->objPmNotify->token_id;
             $transaction->token_expiration_date = $mobilpayReturnObject->objPmNotify->token_expiration_date;
         }
