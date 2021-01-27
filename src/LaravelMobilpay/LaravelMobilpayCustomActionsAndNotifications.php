@@ -2,6 +2,8 @@
 
 namespace App\LaravelMobilpay;
 
+use Netopia\Payment\Request\Card;
+use Netopia\Payment\Request\PaymentAbstract;
 use Stl30\LaravelMobilpay\CustomActionsAndNotifications;
 use Stl30\LaravelMobilpay\Mobilpay\Payment\Request\Mobilpay_Payment_Request_Abstract;
 use Stl30\LaravelMobilpay\Mobilpay\Payment\Request\Mobilpay_Payment_Request_Card;
@@ -9,7 +11,7 @@ use Stl30\LaravelMobilpay\MobilpayTransaction;
 
 class LaravelMobilpayCustomActionsAndNotifications extends CustomActionsAndNotifications
 {
-    public function beforeCreatingTransaction(Mobilpay_Payment_Request_Card $mobilpayRequestObject, $customDataParameter = '')
+    public function beforeCreatingTransaction(Card $mobilpayRequestObject, $customDataParameter = '')
     {
         
     }
@@ -18,7 +20,7 @@ class LaravelMobilpayCustomActionsAndNotifications extends CustomActionsAndNotif
     {
     }
 
-    public function beforeUpdatingTransaction(Mobilpay_Payment_Request_Abstract $mobilpayReturnObject, $orderStatus)
+    public function beforeUpdatingTransaction(PaymentAbstract $mobilpayReturnObject, $orderStatus)
     {
     }
 

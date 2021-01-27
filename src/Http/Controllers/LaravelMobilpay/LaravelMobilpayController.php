@@ -4,6 +4,8 @@ namespace App\Http\Controllers\LaravelMobilpay;
 
 
 use Illuminate\Http\Request;
+use Netopia\Payment\Request\Card;
+use Netopia\Payment\Request\PaymentAbstract;
 use Stl30\LaravelMobilpay\Mobilpay\Payment\Request\Mobilpay_Payment_Request_Abstract;
 use Stl30\LaravelMobilpay\Mobilpay\Payment\Request\Mobilpay_Payment_Request_Card;
 
@@ -14,12 +16,12 @@ class LaravelMobilpayController extends \Stl30\LaravelMobilpay\Http\Controllers\
         return parent::card();
     }
 
-    public function addTransaction(Mobilpay_Payment_Request_Card $mobilpayRequestObject, $customDataParameter = '')
+    public function addTransaction(Card $mobilpayRequestObject, $customDataParameter = '')
     {
         return parent::addTransaction($mobilpayRequestObject, $customDataParameter);
     }
 
-    public function updateTransaction(Mobilpay_Payment_Request_Abstract $mobilpayReturnObject, $orderStatus = 'possible error')
+    public function updateTransaction(PaymentAbstract $mobilpayReturnObject, $orderStatus = 'possible error')
     {
         return parent::updateTransaction($mobilpayReturnObject, $orderStatus);
     }
