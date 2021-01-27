@@ -27,7 +27,7 @@
     "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
-            "Stl30\\LaravelMobilpay\\": "src",
+            "Stl30\\LaravelMobilpay\\": "src"
         }
     },
     "autoload-dev": {
