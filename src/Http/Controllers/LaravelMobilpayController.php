@@ -162,7 +162,7 @@ class LaravelMobilpayController extends Controller
 
     public static function validatePaymentDetails(array $parameters = [])
     {
-        $errorsText = '';
+        $errorsText = [];
         $paymentParameters = [];
         $requiredParameters = [
             #must haves values
@@ -176,10 +176,15 @@ class LaravelMobilpayController extends Controller
                 $paymentParameters[$requiredName] = $parameters[$requiredName];
                 continue;
             }
-            $errorsText .= '<br>Missing required parameter '.$requiredName;
+            $errorsText['errors'][]= 'Missing required parameter '.$requiredName;
         }
-        if (strlen($errorsText)) {
-            die($errorsText);
+        if (count($errorsText)) {
+            echo '<pre>';
+            var_dump('>>>>>');
+            print_r($errorsText);
+            echo('</pre>');
+            die('>>>>>>>>>>>>>>>>>><<<<<<<<<<');
+
         }
 
         $optionalParameters = [
@@ -230,7 +235,7 @@ class LaravelMobilpayController extends Controller
         return $paymentParameters;
     }
 
-    public function cardRedirect(array $paymentParameters = array())
+    public function cardRedirect(array $paymentParameters = array(),$returnOnlyData = false)
     {
         $paymentParameters = self::validatePaymentDetails($paymentParameters);
 
@@ -327,7 +332,19 @@ class LaravelMobilpayController extends Controller
         }
         $exception = isset($exception) ? $exception : null;
         //
+        if($returnOnlyData == true) {
+            return [
+                'paymentUrl' => $paymentUrl,
+                'env_key' => $objPmReqCard->getEnvKey(),
+                'data' => $objPmReqCard->getEncData(),
+                'exception' => $exception,
+                #uncomment the line below in order to see the content of the object created
+//                'objPmReqCard' => $objPmReqCard,
+            ];
+        }
         return view('vendor.laravel-mobilpay.cardRedirect')->with([
+            'env_key' => $objPmReqCard->getEnvKey(),
+            'data' => $objPmReqCard->getEncData(),
             'objPmReqCard' => $objPmReqCard,
             'e' => $exception,
             'paymentUrl' => $paymentUrl
