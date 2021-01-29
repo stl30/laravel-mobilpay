@@ -42,35 +42,35 @@ class LaravelMobilpayServiceProvider extends ServiceProvider
             ], 'lang');
 
 
-            // Publishing Observes files.
-            //if you want to use observers uncoment below 
-//            $this->publishes([
-//                __DIR__.'/Observers' => app_path('Observers'),
-//            ]);
-            
             // Publishing custom classes files.
             $this->publishes([
                 __DIR__.'/LaravelMobilpay' => app_path('LaravelMobilpay'),
+                __DIR__.'/Http/Controllers/LaravelMobilpay' => app_path('/Http/Controllers/LaravelMobilpay'),
+
             ]);
 
             // Registering package commands.
             // $this->commands([]);
         }
-        
-//        if you want to use observers uncoment below
-//        if(config('laravel-mobilpay.transaction_observer_active')){
-//
-//            try {
-//                if(class_exists('App\Observers\TransactionsObserver')){
-//                    MobilpayTransaction::observe(TransactionsObserver::class);
-//                }
-//                else{
-//                    Log::debug(__METHOD__.' Transactions observer does not exist');
-//                }
-//            } catch (Exception $e) {
-//            }
-//
-//        }
+
+
+        if(config('laravel-mobilpay.transaction_observer_active')){
+
+            // Publishing Observes files.
+            $this->publishes([
+                __DIR__.'/Observers' => app_path('Observers'),
+            ]);
+            try {
+                if(class_exists('App\Observers\TransactionsObserver')){
+                    MobilpayTransaction::observe(TransactionsObserver::class);
+                }
+                else{
+                    Log::debug(__METHOD__.' Transactions observer does not exist');
+                }
+            } catch (Exception $e) {
+            }
+
+        }
     }
 
     /**

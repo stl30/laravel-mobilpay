@@ -54,6 +54,7 @@
                         <strong>Plata va fi realizata prin portalul de plati securizat mobilpay.ro</strong>
                         <br/>
                     <form action="{{route('laravel-mobilpay.cardRedirect')}}" method="post" name="frmPaymentRedirect">
+                        @csrf
                         <!-- 	If you want the values in the payment page to be prefilled, you need to request them from the customer and POST them to the payment gateway. If not, the customer will have to fill them in the secure page on mobilpay.ro -->
                         <fieldset>
                             <legend>Completeaza datele pentru facturare</legend>

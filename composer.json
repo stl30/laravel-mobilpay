@@ -16,7 +16,8 @@
         }
     ],
     "require": {
-        "php": ">=7.1",
+        "php": "~7.2",
+        "netopia/payment": "^1.0",
         "illuminate/support": ">=6.0"
     },
     "require-dev": {

@@ -4,8 +4,11 @@
  * You can place your custom package configuration in here.
  */
 return [
+    #quality of life options
+    'transaction_observer_active' => false,//activate/deactivate transaction observer
     #must have options
     'sandbox_active' => true,//set true if you work on sandbox / false if in production
+    //real path
     'sandbox_public_key' => 'sandbox public key path',
     'sandbox_private_key' => 'sandbox private key path',
     'production_public_key' => 'production public key path',
@@ -23,4 +26,5 @@ return [
     #process a currency different from RON, a currency exchange will occur from your currency to RON, using the official BNR exchange rate from that moment
     #and the customer will be presented with the payment amount in a dual currency in the payment page, i.e N.NN RON (e.ee EUR)
     'currency' => 'RON',
+    'invoice-details' => 'invoice details text here',
 ];
